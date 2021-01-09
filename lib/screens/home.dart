@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:quizz_app/question.dart';
+import 'package:quizz_app/classes/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,61 +13,45 @@ class _HomeScreenState extends State<HomeScreen> {
   int rightAnswer = 0;
   int wrongAnswer = 0;
 
-  /* List<String> questions = [
-    'The first infinity stone to appear was the Space Stone',
-    'Tony Stark is the richest Marvel character',
-    'The most expensive marvel movie is The Age of Ultron',
-    'Black Widow\'s real name is Natalia Alianovna Romanova',
-    'MJ is played by Zendaya in the recent Spider-Man movies',
-    'Captain America was frozen for 55 years',
-    'Wakanda acquiresd vibranium from one of the infinity stones',
-    'Nick Fury lost his eye, because it was scratched by a cat',
-    'Groot has never said anything else apart from the phrase:“I am Groot”'
-  ];
+  void checkAnswer(bool userPickerAnswer) {
+    bool correctAnswer = quizBrain.getCorrectAnswer();
 
-  List<bool> answers = [
-    true,
-    false,
-    true,
-    true,
-    true,
-    false,
-    false,
-    true,
-    false
-  ]; */
+    setState(() {
+      if (quizBrain.isFinished() == true) {
+        _onAlertButtonsPressed(context);
 
-  List<Question> questionBank = [
-    Question(
-        q: 'The first infinity stone to appear was the Space Stone', a: true),
-    Question(q: 'Tony Stark is the richest Marvel character', a: false),
-    Question(
-        q: 'The most expensive marvel movie is The Age of Ultron', a: true),
-    Question(
-        q: 'Black Widow\'s real name is Natalia Alianovna Romanova', a: true),
-    Question(
-        q: 'MJ is played by Zendaya in the recent Spider-Man movies', a: true),
-    Question(q: 'Captain America was frozen for 55 years', a: false),
-    Question(
-        q: 'Wakanda acquiresd vibranium from one of the infinity stones',
-        a: false),
-    Question(
-        q: 'Nick Fury lost his eye, because it was scratched by a cat',
-        a: true),
-    Question(
-        q: 'Groot has never said anything else apart from the phrase:“I am Groot”',
-        a: false)
-  ];
+        quizBrain.reset();
 
-  int questionNumber = 0;
+        rightAnswer = 0;
+        wrongAnswer = 0;
+      } else {
+        if (userPickerAnswer == correctAnswer) {
+          rightAnswer += 1;
+        } else {
+          wrongAnswer += 1;
+        }
+        quizBrain.nextQuestion();
+      }
+    });
+  }
 
-  void correctAnswer() {
-    bool correctAnswer = questionBank[questionNumber].questionAswer;
-    if (correctAnswer == true) {
-      rightAnswer += 1;
-    } else {
-      wrongAnswer += 1;
-    }
+  _onAlertButtonsPressed(context) {
+    Alert(
+      context: context,
+      type: AlertType.error,
+      title: "RFLUTTER ALERT",
+      desc: "Flutter is more awesome with RFlutter Alert.",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "COOL",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () {},
+          width: 120,
+        )
+      ],
+    ).show();
   }
 
   @override
@@ -110,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           children: [
                             Icon(
-                              Icons.check,
+                              Icons.close,
                               color: Colors.red,
                               size: 32,
                             ),
@@ -131,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 flex: 4,
                 child: Center(
                   child: Text(
-                    questionBank[questionNumber].questionText,
+                    quizBrain.getQuestions(),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white, fontSize: 40),
                   ),
@@ -145,10 +132,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.all(10.0),
                       child: FlatButton(
                         onPressed: () {
-                          setState(() {
+                          checkAnswer(true);
+                          /* setState(() {
                             correctAnswer();
-                            questionNumber++;
-                          });
+                            quizBrain.nextQuestion();
+                          }); */
                         },
                         color: Colors.green,
                         height: 100,
@@ -165,10 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.all(10.0),
                       child: FlatButton(
                         onPressed: () {
-                          setState(() {
-                            correctAnswer();
-                            questionNumber++;
-                          });
+                          checkAnswer(false);
+                          /* setState(() {
+                            wrongestAnswer();
+                            quizBrain.nextQuestion();
+                          }); */
                         },
                         color: Colors.red,
                         height: 100,
